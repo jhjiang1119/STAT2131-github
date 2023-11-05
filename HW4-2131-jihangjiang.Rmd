@@ -1,0 +1,31 @@
+---
+title: "HW4-STAT2131"
+author: "Jihang Jiang"
+date: "2023-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+Cosme_data <- read.csv("CosmeticsSales.txt",header = TRUE,sep=" ", col.names = c("Y","X1","X2","X3"))
+head(Cosme_data)
+```
+```{r}
+model_cosme1 <- lm(Y~X1, data = Cosme_data)
+summary(model_cosme1)
+```
+```{r}
+model_cosme2 <- lm(Y~X2,data = Cosme_data)
+summary(model_cosme2)
+```
+
+```{r}
+Full_model_cosm <- lm(Y~X1+X2+X3, data = Cosme_data)
+summary(Full_model_cosm)
+```
+
+
