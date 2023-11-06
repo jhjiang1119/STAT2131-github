@@ -8,24 +8,163 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+## Question1
 ```{r}
 
 Cosme_data <- read.csv("CosmeticsSales.txt",header = TRUE,sep=" ", col.names = c("Y","X1","X2","X3"))
 head(Cosme_data)
 ```
+## Part1:
+
 ```{r}
 model_cosme1 <- lm(Y~X1, data = Cosme_data)
 summary(model_cosme1)
 ```
+## Part2:
+
 ```{r}
 model_cosme2 <- lm(Y~X2,data = Cosme_data)
 summary(model_cosme2)
 ```
 
+## Part3:
+
 ```{r}
 Full_model_cosm <- lm(Y~X1+X2+X3, data = Cosme_data)
 summary(Full_model_cosm)
 ```
+
+```{r}
+model_cosmex1x3 <- lm(Y ~ X1 +X3, data = Cosme_data)
+summary(model_cosmex1x3)
+```
+```{r}
+model_cosmex2x3 <- lm(Y~X2+X3,data = Cosme_data)
+summary(model_cosmex2x3)
+```
+Comment: For the simple linear model Y ~ X1 and Y ~ X2, we can see X1 and X2 both statistically influence Y, p-value < 0.05; For the marginal t-test of X1 and X2 with controlling X3, say like Y~X1+X3 and Y~X2+X3, we can see X1 and X2 also statistically influence Y, p-value < 0.05. But for the full model Y~X1+X2+X3, both X1 and X2 do not statistically influence Y, the p-values are even far larger than 0.1. That might because there exist Multicollinearity among variables, in this case, X1 and X2 may have linear relationship.
+
+## Part4:
+
+```{r}
+library(car)
+vif(Full_model_cosm)
+```
+
+```{r}
+pairs(~X1+X2+X3, data=Cosme_data)
+```
+We can see from the output of VIF and pairs plot, VIF values of X1 and X2 is far larger than 10, which means they have strong Multicollinearity. VIF value of X3 means X3 does not have multicollinearity with any other variables. The pair plot shows obviously X1 and X2 has linear relationship.
+
+## Problem2:
+```{r}
+credit_data <- read.csv("Credit.csv",header = TRUE, sep=",")
+head(credit_data)
+```
+```{r}
+library(leaps)
+best_subset_credit <- regsubsets(Balance~Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity, data = credit_data)
+summary(best_subset_credit)
+
+```
+
+
+
+```{r}
+best_sse <- summary(best_subset_credit)
+sse <- best_sse$rss
+sse
+```
+
+```{r}
+forward_credit <- regsubsets(Balance~Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity, data = credit_data, nbest=1, method = "forward")
+summary(forward_credit)
+```
+
+
+```{r}
+forward_sse <- summary(forward_credit)$rss
+forward_sse
+```
+
+```{r}
+backward_credit <- regsubsets(Balance~Income+Limit+Rating+Cards+Age+Education+Gender+Student+Married+Ethnicity, data = credit_data, nbest=1,method = "backward")
+summary(backward_credit)
+```
+```{r}
+backward_sse <- summary(backward_credit)$rss
+backward_sse
+```
+
+
+```{r}
+ggplot() +
+  geom_point(data = data.frame(sse), aes(x=1:length(sse),y=sse), shape=11, color="red")+
+  geom_smooth(data = data.frame(sse), aes(x=1:length(sse),y=sse),se=FALSE,color="red")+
+  geom_point(data = data.frame(forward_sse), aes(x=1:length(sse),y=forward_sse),shape=9, color="orange")+
+  geom_smooth(data = data.frame(forward_sse), aes(x=1:length(sse),y=forward_sse),se=FALSE,color="orange")+
+  geom_point(data = data.frame(backward_sse), aes(x=1:length(sse),y=backward_sse),shape=7, color="steelblue")+
+  geom_smooth(data = data.frame(backward_sse), aes(x=1:length(sse),y=backward_sse),se=FALSE,color="steelblue")
+```
+
+## Part2:
+```{r}
+best_subsect_Cp <- summary(best_subset_credit)$cp
+best_subsect_bic <- summary(best_subset_credit)$bic
+best_subsect_Cp;
+best_subsect_bic;
+optimal_best_subsect_Cp <- which.min(best_subsect_Cp)
+optimal_best_subsect_bic <- which.min(best_subsect_bic)
+print(summary(best_subset_credit)$which[optimal_best_subsect_Cp, ])
+print(summary(best_subset_credit)$which[optimal_best_subsect_bic, ])
+optimal_best_subsect_Cp;
+optimal_best_subsect_bic
+```
+```{r}
+plot(best_subset_credit, scale = "Cp");plot(best_subset_credit,scale = "bic")
+```
+
+```{r}
+forward_Cp <- summary(forward_credit)$cp
+forward_bic <- summary(forward_credit)$bic
+forward_Cp;
+forward_bic;
+optimal_forward_Cp <- which.min(forward_Cp)
+optimal_forward_bic <- which.min(forward_bic)
+print(summary(forward_credit)$which[optimal_forward_Cp, ])
+print(summary(forward_credit)$which[optimal_forward_bic, ])
+optimal_forward_Cp;
+optimal_forward_bic
+```
+```{r}
+plot(forward_credit, scale = "Cp");plot(forward_credit,scale = "bic")
+```
+
+```{r}
+backward_Cp <- summary(backward_credit)$cp
+backward_bic <- summary(backward_credit)$bic
+backward_Cp;
+backward_bic;
+optimal_backward_Cp <- which.min(backward_Cp)
+optimal_backward_bic <- which.min(backward_bic)
+print(summary(backward_credit)$which[optimal_backward_Cp, ])
+print(summary(backward_credit)$which[optimal_backward_bic, ])
+optimal_backward_Cp;
+optimal_backward_bic
+```
+```{r}
+plot(backward_credit, scale = "Cp");plot(backward_credit,scale = "bic")
+```
+
+
+Now we have 3 subset select methods, for best subset procedure: optimal model is Balance~Income+Limit+Rating+Cards+Age+StudentYes, by using Cp and we have 6 predictors; optimal model is Balance~Income+Limit+Cards+StudentYes, by using BIC and we have 4 predictors.
+
+For forward select: optimal model is Balance~Income+Limit+Rating+Cards+Age+StudentYes, by using Cp and we have 6 predictors; optimal model is Balance~Income+Limit+Rating+Cards+StudentYes, by using BIC and we have 5 predictors.
+
+For backward select: optimal model is Balance~Income+Limit+Rating+Cards+Age+StudentYes, by using Cp and we have 6 predictors; optimal model is Balance~Income+Limit+Cards+StudentYes, by using BIC and we have 4 predictors.
+
+
+
+
 
 
