@@ -2,7 +2,9 @@
 title: "HW4-STAT2131"
 author: "Jihang Jiang"
 date: "2023-11-05"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Question1
 ```{r}
-
+library(ggplot2)
 Cosme_data <- read.csv("CosmeticsSales.txt",header = TRUE,sep=" ", col.names = c("Y","X1","X2","X3"))
 head(Cosme_data)
 ```
@@ -121,8 +123,13 @@ optimal_best_subsect_Cp;
 optimal_best_subsect_bic
 ```
 ```{r}
-plot(best_subset_credit, scale = "Cp");plot(best_subset_credit,scale = "bic")
+plot(best_subset_credit, scale = "Cp")
 ```
+```{r}
+
+plot(best_subset_credit,scale = "bic")
+```
+
 
 ```{r}
 forward_Cp <- summary(forward_credit)$cp
@@ -137,8 +144,12 @@ optimal_forward_Cp;
 optimal_forward_bic
 ```
 ```{r}
-plot(forward_credit, scale = "Cp");plot(forward_credit,scale = "bic")
+plot(forward_credit, scale = "Cp")
 ```
+```{r}
+plot(forward_credit,scale = "bic")
+```
+
 
 ```{r}
 backward_Cp <- summary(backward_credit)$cp
@@ -153,8 +164,12 @@ optimal_backward_Cp;
 optimal_backward_bic
 ```
 ```{r}
-plot(backward_credit, scale = "Cp");plot(backward_credit,scale = "bic")
+plot(backward_credit, scale = "Cp")
 ```
+```{r}
+plot(backward_credit,scale = "bic")
+```
+
 
 
 Now we have 3 subset select methods, for best subset procedure: optimal model is Balance~Income+Limit+Rating+Cards+Age+StudentYes, by using Cp and we have 6 predictors; optimal model is Balance~Income+Limit+Cards+StudentYes, by using BIC and we have 4 predictors.
